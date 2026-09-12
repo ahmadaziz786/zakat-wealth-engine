@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Modern Asset Zakat & Ethical Wealth Tax Engine
 
-## Getting Started
+> Deterministic, AAOIFI-compliant wealth audit and Zakat computation engine engineered for modern tech compensation (RSUs, ESPP), locked retirement funds (EPF/VPF/401k), and Web3 portfolios.
 
-First, run the development server:
+[![Live App](https://img.shields.io/badge/Live-zakat--wealth--engine.vercel.app-10b981)](https://zakat-wealth-engine.vercel.app)
+[![Standard](https://img.shields.io/badge/Fiqh%20Standard-AAOIFI%20No.%2035-blue)](https://aaoifi.com)
+[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Client--Side-emerald)](#privacy--security-guarantee)
 
-```bash
+---
+
+## Key Technical & Fiqh Features
+
+- **Unvested RSUs (0% Weight):** Strictly adheres to the *Milkiyyah Tammah* (complete legal ownership) principle. Unvested grants carry zero liability until actual vesting occurs.
+- **Long-Term Equities (25% Proxy):** Implements the AAOIFI working-capital proxy for passive/long-term tech holdings rather than taxing gross market valuation.
+- **Retirement & Locked Funds (EPF / VPF / 401k):** Segregates inaccessible corpus from liquid/withdrawable funds.
+- **Dynamic Spot Rates:** Live bullion rates (Gold/Silver in INR, USD, AED, GBP, EUR) with manual local override.
+- **Institutional PDF Audit:** Deterministic line-item audit report generation with SHA-256 cryptographic verification.
+
+---
+
+## Privacy & Security Guarantee
+
+- **Zero Database Storage:** No server-side persistence. All inputs remain strictly in browser memory.
+- **No Analytics Fingerprinting:** Financial calculations are never tracked or logged.
+
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **Document Generation:** @react-pdf/renderer
+- **State Management:** Zustand (session-based)
+
+---
+
+## Local Development
+
+Run the development server locally:
+
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open http://localhost:3000 in your browser.
