@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { calculateZakat, ZakatInput, ZakatBreakdown, Currency, CalendarType, NisabMetal } from '@/lib/zakatEngine';
 
 export interface ZakatState extends ZakatInput {
@@ -14,6 +15,8 @@ export interface ZakatState extends ZakatInput {
   setHawlDate: (date: string) => void;
   setDeductibleLiabilities: (liabs: Partial<ZakatInput['deductibleLiabilities']>) => void;
   resetAllInputs: () => void;
+  isUnlocked: boolean;
+  setUnlocked: (val: boolean) => void;
 }
 
 const defaultMetalPrices: Record<Currency, { goldPerGram: number; silverPerGram: number }> = {
@@ -24,10 +27,12 @@ const defaultMetalPrices: Record<Currency, { goldPerGram: number; silverPerGram:
   EUR: { silverPerGram: 0.88, goldPerGram: 69 },
 };
 
-export const useZakatStore = create<ZakatState>((set) => ({
-  currency: 'INR',
-  calendarType: 'solar',
-  nisabMetal: 'silver',
+export const useZakatStore = create<ZakatState>()(
+  persist(
+    (set) => ({
+      currency: 'INR',
+      calendarType: 'solar',
+      nisabMetal: 'silver',
   metalPrices: defaultMetalPrices['INR'],
   liquidAssets: { cashInHand: 0, bankChecking: 0, bankSavings: 0 },
   modernEquities: { tradingStocksMarketValue: 0, longTermHoldingsValue: 0, vestedRSUsValue: 0, unvestedRSUsValue: 0 },
@@ -36,6 +41,7 @@ export const useZakatStore = create<ZakatState>((set) => ({
   preciousMetals: { goldGrams: 0, silverGrams: 0 },
   hawlDate: new Date().toISOString().split('T')[0],
   deductibleLiabilities: { immediateDueBills: 0, currentMonthDebtObligations: 0 },
+  isUnlocked: false,
 
   setCurrency: (c) => set({ currency: c, metalPrices: defaultMetalPrices[c] }),
   setCalendarType: (c) => set({ calendarType: c }),
@@ -48,6 +54,7 @@ export const useZakatStore = create<ZakatState>((set) => ({
   setPreciousMetals: (metals) => set((state) => ({ preciousMetals: { ...state.preciousMetals, ...metals } })),
   setHawlDate: (date) => set({ hawlDate: date }),
   setDeductibleLiabilities: (liabs) => set((state) => ({ deductibleLiabilities: { ...state.deductibleLiabilities, ...liabs } })),
+  setUnlocked: (val) => set({ isUnlocked: val }),
   resetAllInputs: () => set({
     liquidAssets: { cashInHand: 0, bankChecking: 0, bankSavings: 0 },
     modernEquities: { tradingStocksMarketValue: 0, longTermHoldingsValue: 0, vestedRSUsValue: 0, unvestedRSUsValue: 0 },
@@ -57,5 +64,11 @@ export const useZakatStore = create<ZakatState>((set) => ({
     hawlDate: new Date().toISOString().split('T')[0],
     deductibleLiabilities: { immediateDueBills: 0, currentMonthDebtObligations: 0 },
   }),
-}));
+    }),
+    {
+      name: 'zakat-wealth-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
 

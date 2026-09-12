@@ -61,7 +61,7 @@ export function PaywallModal({ isOpen, onClose, onSuccess }: PaywallModalProps) 
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: 79900,
+        amount: 29900,
         currency: "INR",
         name: "Modern Zakat Engine",
         description: "Certified Wealth Audit & Tax Breakdown Report",
@@ -123,8 +123,15 @@ export function PaywallModal({ isOpen, onClose, onSuccess }: PaywallModalProps) 
 
       <div className="mb-2 text-center">
         {activeTab === 'domestic' ? (
-          <div className="animate-in fade-in">
-            <div className="text-3xl font-extrabold text-white mb-1">₹799 <span className="text-xs font-normal text-slate-400">(One-time)</span></div>
+          <div className="animate-in fade-in flex flex-col items-center">
+            <div className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs px-2 py-0.5 rounded-full font-semibold mb-1 w-fit">
+              Launch Special: Flat 70% Off
+            </div>
+            <div className="flex items-end justify-center gap-2 mb-1">
+              <span className="line-through text-slate-500 text-sm pb-1">₹999</span>
+              <span className="text-3xl font-extrabold text-emerald-400">₹299</span>
+              <span className="text-xs font-normal text-slate-400 pb-1.5">(One-time)</span>
+            </div>
             <div className="text-xs text-slate-500">Instant UPI / QR / NetBanking</div>
           </div>
         ) : (
@@ -135,18 +142,22 @@ export function PaywallModal({ isOpen, onClose, onSuccess }: PaywallModalProps) 
         )}
       </div>
 
-      <div className="space-y-2 mb-2">
+      <div className="space-y-2 mb-2 text-left">
         <div className="flex items-start gap-2">
           <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" />
-          <span className="text-xs text-slate-300">Deterministic breakdown of RSUs, crypto staking, and unlisted equity.</span>
+          <span className="text-xs text-slate-300">Official AAOIFI-Compliant PDF Audit Report (Signed with SHA-256 Hash)</span>
         </div>
         <div className="flex items-start gap-2">
           <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" />
-          <span className="text-xs text-slate-300">Unique Verification & Audit Hash.</span>
+          <span className="text-xs text-slate-300">CA-Ready Editable Excel Ledger (.xlsx) with embedded formulas</span>
         </div>
         <div className="flex items-start gap-2">
           <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" />
-          <span className="text-xs text-slate-300">CA & wealth advisor audit format.</span>
+          <span className="text-xs text-slate-300">Tranche-wise RSU & ESPP equity breakdown</span>
+        </div>
+        <div className="flex items-start gap-2">
+          <CheckCircle2 size={14} className="text-emerald-500 shrink-0 mt-0.5" />
+          <span className="text-xs text-slate-300">Valid for annual wealth records and CA tax filing</span>
         </div>
       </div>
 
@@ -163,12 +174,12 @@ export function PaywallModal({ isOpen, onClose, onSuccess }: PaywallModalProps) 
         ) : (
           <>
             <ShieldCheck size={16} />
-            Unlock & Download Report
+            {activeTab === 'domestic' ? 'Unlock & Download Audit Pack • ₹299' : 'Unlock & Download Audit Pack • $19'}
           </>
         )}
       </button>
 
-      {isDev && (
+      {process.env.NODE_ENV === 'development' && (
         <button 
           onClick={() => {
             onSuccess({ isDevPreview: true });

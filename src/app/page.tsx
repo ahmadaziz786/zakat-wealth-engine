@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   ShieldCheck, Database, Search, Download, 
   Wallet, TrendingUp, Bitcoin, ReceiptText, 
-  Settings2, CheckCircle2, AlertTriangle, RotateCcw, Mail, Briefcase, Coins
+  Settings2, CheckCircle2, AlertTriangle, RotateCcw, Mail, Briefcase, Coins, Lock
 } from 'lucide-react';
 import { useZakatStore } from '@/store/useZakatStore';
 import { Currency, CalendarType, NisabMetal, calculateZakat } from '@/lib/zakatEngine';
@@ -24,12 +24,17 @@ const inputClass = "h-11 w-full bg-slate-950/80 border border-slate-800 rounded-
 
 export default function ZakatDashboard() {
   const store = useZakatStore();
+  const [mounted, setMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaywallOpen, setIsPaywallOpen] = useState(false);
   const [fetchedRates, setFetchedRates] = useState<any>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [resetToast, setResetToast] = useState(false);
-  const hasHydrated = useRef(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setTimeout(() => setIsLoading(false), 500);
+  }, []);
 
   const handleReset = () => {
     setIsResetting(true);
@@ -45,55 +50,19 @@ export default function ZakatDashboard() {
       .then(data => {
         if (data && data.rates) {
           setFetchedRates(data.rates);
+          const currentRates = data.rates[store.currency];
+          if (currentRates) {
+            store.setMetalPrices({
+              goldPerGram: currentRates.gold || store.metalPrices.goldPerGram,
+              silverPerGram: currentRates.silver || store.metalPrices.silverPerGram
+            });
+          }
         }
       })
       .catch(err => console.error("Failed to fetch rates", err));
   }, []);
 
-  // Auto-load state on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('zakat_wealth_draft_v1');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.liquidAssets) store.setLiquidAssets(parsed.liquidAssets);
-        if (parsed.modernEquities) store.setModernEquities(parsed.modernEquities);
-        if (parsed.cryptoAssets) store.setCryptoAssets(parsed.cryptoAssets);
-        if (parsed.retirementAssets) store.setRetirementAssets(parsed.retirementAssets);
-        if (parsed.preciousMetals) store.setPreciousMetals(parsed.preciousMetals);
-        if (parsed.deductibleLiabilities) store.setDeductibleLiabilities(parsed.deductibleLiabilities);
-        if (parsed.currency) store.setCurrency(parsed.currency);
-        if (parsed.calendarType) store.setCalendarType(parsed.calendarType);
-        if (parsed.nisabMetal) store.setNisabMetal(parsed.nisabMetal);
-        if (parsed.metalPrices) store.setMetalPrices(parsed.metalPrices);
-      } catch(e) {}
-    }
-    hasHydrated.current = true;
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
 
-  // Auto-save state changes
-  useEffect(() => {
-    if (!hasHydrated.current) return;
-    const stateToSave = {
-      liquidAssets: store.liquidAssets,
-      modernEquities: store.modernEquities,
-      cryptoAssets: store.cryptoAssets,
-      deductibleLiabilities: store.deductibleLiabilities,
-      currency: store.currency,
-      calendarType: store.calendarType,
-      nisabMetal: store.nisabMetal,
-      metalPrices: store.metalPrices,
-      hawlDate: store.hawlDate,
-      retirementAssets: store.retirementAssets,
-      preciousMetals: store.preciousMetals,
-    };
-    localStorage.setItem('zakat_wealth_draft_v1', JSON.stringify(stateToSave));
-  }, [
-    store.liquidAssets, store.modernEquities, store.cryptoAssets, store.deductibleLiabilities,
-    store.currency, store.calendarType, store.nisabMetal, store.metalPrices, store.hawlDate, store.retirementAssets, store.preciousMetals
-  ]);
-  
   const breakdown = useMemo(() => {
     return calculateZakat({
       currency: store.currency,
@@ -112,6 +81,8 @@ export default function ZakatDashboard() {
     store.currency, store.calendarType, store.nisabMetal, store.metalPrices,
     store.liquidAssets, store.modernEquities, store.cryptoAssets, store.deductibleLiabilities, store.hawlDate, store.retirementAssets, store.preciousMetals
   ]);
+
+  if (!mounted) return null;
 
   return (
     <>
@@ -138,23 +109,25 @@ export default function ZakatDashboard() {
         </div>
       )}
       
-      {/* Top Bar for Status Pill */}
-      <div className="absolute top-0 w-full flex justify-end px-6 pt-4 z-40 pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-emerald-500/30 text-[10px] sm:text-xs font-medium text-emerald-300 shadow-lg shadow-black/40">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          100% Client-Side • Auto-saved <span className="hidden sm:inline">(Do not clear cache)</span>
-        </div>
-      </div>
 
       <div className={`min-h-screen bg-slate-950 text-slate-50 font-sans pb-24 relative transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
         
         {/* Trust Hero */}
-        <header className="flex flex-col items-center justify-center text-center px-4 pt-6 pb-2 max-w-6xl mx-auto border-b border-slate-800/60 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-            <Logo className="!w-6 !h-6" />
+        <header className="flex flex-col items-center justify-center text-center px-4 pt-14 md:pt-8 pb-2 max-w-6xl mx-auto border-b border-slate-800/60 mb-8 relative">
+          
+          {/* Status Pill */}
+          <div className="absolute top-3 right-3 md:top-4 md:right-4 z-10 inline-flex items-center gap-1.5 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 backdrop-blur-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            100% Client-Side • Auto-saved
+          </div>
+
+          {/* Outer Glowing Badge Container */}
+          <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.3)] mx-auto mb-6">
+            {/* Inner SVG Icon */}
+            <Logo className="!w-7 !h-7 md:!w-10 md:!h-10 text-emerald-400" />
           </div>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white max-w-3xl mx-auto leading-tight mb-2">
             Modern Asset Zakat & <span className="text-emerald-400">Ethical Wealth Tax Engine</span>
@@ -333,7 +306,7 @@ export default function ZakatDashboard() {
                   </label>
                   <input type="number" min="0" placeholder="e.g. 50" value={store.preciousMetals.goldGrams || ''} onChange={(e) => store.setPreciousMetals({ goldGrams: parseFloat(e.target.value) || 0 })} onFocus={(e) => e.target.select()} className={inputClass} />
                   {store.preciousMetals.goldGrams > 0 && (
-                    <div className="mt-1 text-[11px] text-amber-500 font-medium">
+                    <div className="mt-1 text-[11px] text-amber-500 font-medium flex-wrap leading-tight">
                       ≈ {formatCurrency(store.preciousMetals.goldGrams * store.metalPrices.goldPerGram, store.currency)} (@ {formatCurrency(store.metalPrices.goldPerGram, store.currency)}/g)
                     </div>
                   )}
@@ -344,7 +317,7 @@ export default function ZakatDashboard() {
                   </label>
                   <input type="number" min="0" placeholder="e.g. 250" value={store.preciousMetals.silverGrams || ''} onChange={(e) => store.setPreciousMetals({ silverGrams: parseFloat(e.target.value) || 0 })} onFocus={(e) => e.target.select()} className={inputClass} />
                   {store.preciousMetals.silverGrams > 0 && (
-                    <div className="mt-1 text-[11px] text-slate-400 font-medium">
+                    <div className="mt-1 text-[11px] text-slate-400 font-medium flex-wrap leading-tight">
                       ≈ {formatCurrency(store.preciousMetals.silverGrams * store.metalPrices.silverPerGram, store.currency)} (@ {formatCurrency(store.metalPrices.silverPerGram, store.currency)}/g)
                     </div>
                   )}
@@ -477,17 +450,17 @@ export default function ZakatDashboard() {
                 
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-400">Gross Assets</span>
-                    <span className="font-medium text-slate-200">{formatCurrency(breakdown.grossAssets, store.currency)}</span>
+                    <span className="text-slate-400 shrink-0">Gross Assets</span>
+                    <span className="font-medium text-slate-200 text-right truncate max-w-[55%]">{formatCurrency(breakdown.grossAssets, store.currency)}</span>
                   </div>
                   <div className="flex justify-between items-center text-sm text-rose-400">
-                    <span>Deductible Liabilities</span>
-                    <span>- {formatCurrency(breakdown.deductibleLiabilities, store.currency)}</span>
+                    <span className="shrink-0">Deductible Liabilities</span>
+                    <span className="font-medium text-right truncate max-w-[55%]">- {formatCurrency(breakdown.deductibleLiabilities, store.currency)}</span>
                   </div>
                   <div className="h-px bg-slate-800 my-2"></div>
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-300 font-medium">Net Zakatable Pool</span>
-                    <span className="font-semibold text-white text-lg">{formatCurrency(breakdown.zakatablePool, store.currency)}</span>
+                    <span className="text-slate-300 font-medium shrink-0">Net Zakatable Pool</span>
+                    <span className="font-semibold text-white text-lg text-right truncate max-w-[55%]">{formatCurrency(breakdown.zakatablePool, store.currency)}</span>
                   </div>
                 </div>
 
@@ -515,12 +488,34 @@ export default function ZakatDashboard() {
 
                 <div className="mb-8">
                   <h4 className="text-sm text-slate-400 mb-1">Final Zakat Due</h4>
-                  <div className="text-5xl font-extrabold text-emerald-400 tracking-tight">
+                  <div className="text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight break-words max-w-full overflow-hidden text-ellipsis">
                     {formatCurrency(breakdown.zakatDue, store.currency)}
                   </div>
                   <div className="text-xs text-slate-500 mt-2">
                     Calculated at {(breakdown.effectiveRate * 100).toFixed(3)}% rate
                   </div>
+                </div>
+
+                {/* Subtle Blur Paywall Hook */}
+                <div className={`relative overflow-hidden rounded-xl border border-slate-800 p-4 mt-4 ${store.isUnlocked ? 'bg-slate-900/10 border-slate-800/50' : 'bg-slate-900/40'}`}>
+                  {/* Content Layer */}
+                  <div className={`${store.isUnlocked ? '' : 'filter blur-[4px] select-none pointer-events-none opacity-50'} transition-all space-y-3`}>
+                    <div className="flex justify-between text-xs text-slate-400"><span>Vested RSUs</span><span>{formatCurrency(store.modernEquities.vestedRSUsValue, store.currency)}</span></div>
+                    <div className="flex justify-between text-xs text-slate-400"><span>Unvested Grants (0%)</span><span>{formatCurrency(0, store.currency)}</span></div>
+                    <div className="flex justify-between text-xs text-slate-400"><span>Long-Term Equity (25%)</span><span>{formatCurrency(store.modernEquities.longTermHoldingsValue * 0.25, store.currency)}</span></div>
+                    <div className="flex justify-between text-xs text-slate-400"><span>Physical Bullion</span><span>{formatCurrency((store.preciousMetals.goldGrams * store.metalPrices.goldPerGram) + (store.preciousMetals.silverGrams * store.metalPrices.silverPerGram), store.currency)}</span></div>
+                  </div>
+                  {/* Paywall Overlay */}
+                  {!store.isUnlocked && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/70 backdrop-blur-[1px] p-4 text-center z-10">
+                      <Lock className="w-6 h-6 text-emerald-400 mb-2" />
+                      <h5 className="text-sm font-semibold text-slate-200">CA-Ready Detailed Audit Ledger</h5>
+                      <p className="text-xs text-slate-400 mb-3">Tranche-wise RSU exemptions & AAOIFI compliance notes</p>
+                      <button onClick={() => setIsPaywallOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all cursor-pointer">
+                        Unlock Breakdown & Excel • ₹299
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
