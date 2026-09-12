@@ -61,10 +61,10 @@ export function PaywallModal({ isOpen, onClose, onSuccess }: PaywallModalProps) 
 
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: 100,
+        amount: 29900,
         currency: "INR",
         name: "Modern Zakat Engine",
-        description: "Zakat Audit Pack (Live Test Verification)",
+        description: "Official Wealth Audit & Tax Breakdown Report (AAOIFI Standard 35)",
         order_id: data.orderId,
         handler: function (response: any) {
           onSuccess(response);

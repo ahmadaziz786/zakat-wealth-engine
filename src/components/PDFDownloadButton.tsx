@@ -92,11 +92,8 @@ export default function PDFDownloadButton({ isPaywallOpen, onPaywallChange }: PD
       return;
     }
 
-    // Prompt for email if razorpay_email not present
+    // Proceed with email if razorpay_email is present
     let userEmail = response?.razorpay_email;
-    if (!userEmail) {
-      userEmail = window.prompt("Enter email address to receive PDF backup copy:");
-    }
 
     if (userEmail) {
       try {
