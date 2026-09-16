@@ -530,6 +530,21 @@ export default function ZakatDashboard() {
       
       {/* Enhanced Modern Footer */}
       <footer className="max-w-6xl mx-auto px-6 mt-16 pt-8 pb-12 border-t border-white/5 flex flex-col items-center text-center">
+        
+        {/* Trust Badges */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 mb-10 max-w-2xl">
+          <div className="flex flex-col items-center text-center">
+            <Lock className="w-5 h-5 text-slate-500 mb-2" />
+            <span className="text-sm font-semibold text-slate-300 mb-1">100% Client-Side Privacy</span>
+            <span className="text-xs text-slate-500">Zero database architecture. Your RSU figures never leave your local browser memory.</span>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <ShieldCheck className="w-5 h-5 text-slate-500 mb-2" />
+            <span className="text-sm font-semibold text-slate-300 mb-1">Risk-Free Guarantee</span>
+            <span className="text-xs text-slate-500">If the calculations don't match your CA's audit, get a 100% refund within 7 days. No questions asked.</span>
+          </div>
+        </div>
+
         <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 mb-6">
           <a href="/privacy" className="text-xs text-slate-400 hover:text-emerald-400 transition-colors">Privacy Policy</a>
           <span className="text-slate-700 text-[10px]">•</span>
